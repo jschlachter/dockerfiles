@@ -1,0 +1,15 @@
+version: '2'
+services:
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker
+    restart: unless-stopped
+    environment:
+      - TZ="America/Chicago"
+    network_mode: host
+    volumes:
+      - /home/jschlach/plex/database:/config
+      - /home/jschlach/plex/transcode:/transcode
+      - /home/jschlach/plex/media-library:/data
+    devices:
+      - /dev/dri:/dev/dri
