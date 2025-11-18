@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  registry-mirror:
+    image: registry:3
+    container_name: registry-mirror
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io
+      - REGISTRY_DELETE_ENABLED=true
+
+    volumes:
+      - ./data/registry:/var/lib/registry
