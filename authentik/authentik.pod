@@ -1,0 +1,14 @@
+[Unit]
+Description=Authentik Pod (PostgreSQL, Server, Worker)
+After=network-online.target
+
+[Pod]
+PodName=authentik
+PublishPort=9000:9000
+PublishPort=9443:9443
+
+[Service]
+Restart=unless-stopped
+
+[Install]
+WantedBy=default.target

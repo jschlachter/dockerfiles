@@ -1,0 +1,20 @@
+[Unit]
+Description=Authentik Server
+After=network-online.target authentik-postgresql.service
+Requires=authentik-postgresql.service
+
+[Container]
+Image=ghcr.io/goauthentik/server:2025.12.4
+ContainerName=authentik-server
+Exec=server
+EnvironmentFile=.env
+Volume=%h/authentik/data:/data
+Volume=%h/authentik/custom-templates:/templates
+Pod=authentik.pod
+
+[Service]
+Restart=unless-stopped
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
