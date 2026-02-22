@@ -8,8 +8,8 @@ services:
       - TZ="America/Chicago"
     network_mode: host
     volumes:
-      - /home/jschlach/plex/database:/config
-      - /home/jschlach/plex/transcode:/transcode
-      - /home/jschlach/plex/media-library:/data
+      - ${HOME}/plex/database:/config
+      - ${HOME}/plex/transcode:/transcode
+      - ${HOME}/plex/media-library:/data
     devices:
       - /dev/dri:/dev/dri
