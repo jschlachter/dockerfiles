@@ -1,0 +1,21 @@
+[Unit]
+Description=Wiki.js
+After=network-online.target wikijs-postgresql.service
+Requires=wikijs-postgresql.service
+
+[Container]
+Image=ghcr.io/requarks/wiki:2
+ContainerName=wikijs
+EnvironmentFile=.env
+Volume=%h/wiki:/wiki/data:U,z,rw
+Pod=wikijs.pod
+
+[Service]
+# Create the `Volume` location before starting the container:
+ExecStartPre=mkdir -p %h/wiki
+
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target

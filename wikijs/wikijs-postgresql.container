@@ -1,0 +1,24 @@
+[Unit]
+Description=Authentik PostgreSQL Database
+After=network-online.target
+
+[Container]
+Image=docker.io/library/postgres:18-alpine
+ContainerName=wikijs-postgresql
+EnvironmentFile=.env
+Volume=wikijs-database.volume:/var/lib/postgresql/data
+Pod=wikijs.pod
+
+# Health check (runs inside container)
+HealthCmd=pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=5
+HealthStartPeriod=20s
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target
