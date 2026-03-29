@@ -15,7 +15,7 @@ This repository contains both **Docker Compose** configurations and **Podman Qua
 | [**MSSQL**](./mssql/) | Docker Compose | Microsoft SQL Server for development and testing |
 | [**Nginx Proxy Manager**](./nginx-proxy-manager/) | Docker Compose | Web-based reverse proxy management with SSL support |
 | [**Plex**](./plex/) | Docker Compose | Media server for organizing and streaming personal media |
-| [**RabbitMQ**](./rabbitmq/) | Docker Compose | Message broker for distributed systems |
+| [**RabbitMQ**](./rabbitmq/) | Podman Quadlets | Message broker for distributed systems |
 | [**Registry Mirror**](./registry-mirror/) | Docker Compose | Docker registry caching proxy to speed up image pulls |
 | [**Seq**](./seq/) | Docker Compose | Structured log server for application logging |
 | [**Wiki.js**](./wikijs/) | Podman Quadlets | Modern wiki platform for documentation |
@@ -57,7 +57,7 @@ docker-compose down         # Stop and remove containers
 
 #### Podman Quadlet Services
 
-For services with Quadlet files (authentik, wikijs):
+For services with Quadlet files (authentik, rabbitmq, wikijs):
 
 1. Copy quadlet files to systemd directory:
    ```bash
@@ -78,11 +78,15 @@ See individual service READMEs for detailed setup instructions and configuration
 ```
 dockerfiles/
 ├── README.md                      # This file
+├── enable-service.sh              # Helper script to reload/enable user services
 ├── authentik/                     # Podman Quadlets for Authentik SSO
 │   ├── README.md
 │   ├── authentik.pod
-│   ├── authentik-*.container
-│   └── *.volume
+│   ├── authentik.network
+│   ├── authentik-database.volume
+│   ├── authentik-postgresql.container
+│   ├── authentik-server.container
+│   └── authentik-worker.container
 ├── kafka/                         # Kafka with Confluent
 │   ├── README.md
 │   └── docker-compose.yml
@@ -93,17 +97,24 @@ dockerfiles/
 │   └── docker-compose.yml
 ├── plex/                          # Media server
 │   └── docker-compose.yml
-├── rabbitmq/                      # Message broker
-│   └── docker-compose.yml
+├── rabbitmq/                      # Podman Quadlets for RabbitMQ
+│   ├── rabbitmq.pod
+│   ├── rabbitmq.network
+│   ├── rabbitmq.volume
+│   └── rabbitmq.container
 ├── registry-mirror/               # Docker registry cache
 │   ├── README.md
 │   └── docker-compose.yml
 ├── seq/                           # Log server
+│   ├── .env
 │   └── docker-compose.yml
 └── wikijs/                        # Podman Quadlets for Wiki.js
-    ├── wikijs.pod
-    ├── wikijs*.container
-    └── *.volume
+  ├── .env
+  ├── wikijs.pod
+  ├── wikijs.network
+  ├── wikijs-database.volume
+  ├── wikijs-postgresql.container
+  └── wikijs.container
 ```
 
 ## 🔧 Configuration
