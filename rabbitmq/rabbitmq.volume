@@ -1,0 +1,3 @@
+[Volume]
+Label=app=rabbitmq
+VolumeName=rabbitmq-data

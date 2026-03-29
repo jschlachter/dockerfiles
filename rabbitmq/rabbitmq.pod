@@ -1,0 +1,13 @@
+[Unit]
+Description=RabbitMQ Pod (RabbitMQ)
+After=network-online.target
+Wants=network-online.target
+
+[Pod]
+PodName=rabbitmq
+PublishPort=15672:15672
+PublishPort=5672:5672
+Network=rabbitmq.network
+
+[Install]
+WantedBy=default.target

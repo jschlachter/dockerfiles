@@ -1,0 +1,22 @@
+[Unit]
+Description=RabbitMQ Container
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/library/rabbitmq:4-management-alpine
+ContainerName=rabbitmq
+Volume=rabbitmq.volume:/var/lib/rabbitmq
+Pod=rabbitmq.pod
+
+HealthCmd=rabbitmq-diagnostics --quiet check_running && rabbitmq-diagnostics --quiet check_local_alarms
+HealthInterval=60s
+HealthTimeout=30s
+HealthRetries=3
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
