@@ -6,9 +6,7 @@ After=network-online.target
 PodName=authentik
 PublishPort=9000:9000
 PublishPort=9443:9443
-
-[Service]
-Restart=unless-stopped
+Network=authentik.network
 
 [Install]
 WantedBy=default.target

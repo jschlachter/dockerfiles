@@ -13,7 +13,10 @@ Volume=%h/authentik/custom-templates:/templates
 Pod=authentik.pod
 
 [Service]
-Restart=unless-stopped
+ExecStartPre=mkdir -p %h/authentik/data \
+    && mkdir -p %h/authentik/custom-templates
+
+Restart=always
 TimeoutStartSec=900
 
 [Install]

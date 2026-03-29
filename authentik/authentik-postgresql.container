@@ -17,7 +17,7 @@ HealthRetries=5
 HealthStartPeriod=20s
 
 [Service]
-Restart=unless-stopped
+Restart=always
 TimeoutStartSec=900
 
 [Install]

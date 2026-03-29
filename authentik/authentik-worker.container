@@ -1,6 +1,6 @@
 [Unit]
 Description=Authentik Worker
-After=network-online.target authentik-postgresql.service
+After=network-online.target authentik-postgresql.service authentik-server.service
 Requires=authentik-postgresql.service
 
 [Container]
@@ -15,7 +15,11 @@ Volume=%h/authentik/custom-templates:/templates
 Pod=authentik.pod
 
 [Service]
-Restart=unless-stopped
+ExecStartPre=mkdir -p %h/authentik/data \
+    && mkdir -p %h/authentik/certs \
+    && mkdir -p %h/authentik/custom-templates
+    
+Restart=always
 TimeoutStartSec=900
 
 [Install]
