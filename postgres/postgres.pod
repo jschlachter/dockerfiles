@@ -1,0 +1,12 @@
+[Unit]
+Description=PostgreSQL Pod
+After=network-online.target
+Wants=network-online.target
+
+[Pod]
+PodName=postgres
+PublishPort=${POSTGRES_PORT}:5432
+Network=postgres.network
+
+[Install]
+WantedBy=default.target

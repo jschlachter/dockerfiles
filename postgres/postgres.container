@@ -1,0 +1,24 @@
+[Unit]
+Description=PostgreSQL Database
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/library/postgres:18-alpine
+ContainerName=postgres
+Environment=POSTGRES_PORT=5432
+EnvironmentFile=%h/git/dockerfiles/postgres/.env
+Volume=postgres-data.volume:/var/lib/postgresql/data
+Pod=postgres.pod
+HealthCmd=pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=5
+HealthStartPeriod=20s
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
