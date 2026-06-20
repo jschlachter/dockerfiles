@@ -3,18 +3,27 @@ Description=Authentik PostgreSQL Database
 After=network-online.target
 
 [Container]
-Image=docker.io/library/postgres:16-alpine
+# Base options
 ContainerName=authentik-postgresql
-EnvironmentFile=.env
-Volume=authentik-database.volume:/var/lib/postgresql/data
+Image=docker.io/library/postgres:18-alpine
 Pod=authentik.pod
 
-# Health check (runs inside container)
+# Storage options
+Volume=authentik-database.volume:/var/lib/postgresql
+
+# Environment options
+Environment=POSTGRES_DB=authentik
+Environment=POSTGRES_USER=authentik
+
+# Secret options
+Secret=authentik-db-pass,type=env,target=POSTGRES_PASSWORD
+
+# Healthcheck options
 HealthCmd=pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}
 HealthInterval=30s
-HealthTimeout=5s
 HealthRetries=5
 HealthStartPeriod=20s
+HealthTimeout=5s
 
 [Service]
 Restart=always
@@ -22,3 +31,4 @@ TimeoutStartSec=900
 
 [Install]
 WantedBy=default.target
+

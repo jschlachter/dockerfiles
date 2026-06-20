@@ -1,26 +1,38 @@
 [Unit]
 Description=Authentik Worker
-After=network-online.target authentik-postgresql.service authentik-server.service
+After=network-online.target authentik-postgresql.service \
+  authentik-server.service
 Requires=authentik-postgresql.service
 
 [Container]
-Image=ghcr.io/goauthentik/server:2025.12.4
+# Base options
 ContainerName=authentik-worker
 Exec=worker
-EnvironmentFile=.env
-Volume=%t/podman/podman.sock:/var/run/docker.sock
-Volume=%h/authentik/data:/data
-Volume=%h/authentik/certs:/certs
-Volume=%h/authentik/custom-templates:/templates
+Image=ghcr.io/goauthentik/server:2026.5
 Pod=authentik.pod
 
+# Storage options
+Volume=%h/authentik/certs:/certs
+Volume=%h/authentik/custom-templates:/templates
+Volume=%h/authentik/data:/data
+Volume=%t/podman/podman.sock:/var/run/docker.sock
+
+# Environment options
+Environment=AUTHENTIK_POSTGRESQL__HOST=authentik-postgresql
+Environment=AUTHENTIK_POSTGRESQL__NAME=authentik
+Environment=AUTHENTIK_POSTGRESQL__USER=authentik
+
+# Secret options
+Secret=authentik-db-pass,type=env,target=AUTHENTIK_POSTGRESQL__PASSWORD
+Secret=authentik-secret-key,type=env,target=AUTHENTIK_SECRET_KEY
+
 [Service]
-ExecStartPre=mkdir -p %h/authentik/data \
-    && mkdir -p %h/authentik/certs \
-    && mkdir -p %h/authentik/custom-templates
-    
+ExecStartPre=mkdir -p %h/authentik/data && mkdir -p %h/authentik/certs && \
+  mkdir -p %h/authentik/custom-templates
 Restart=always
+RestartSec=10s
 TimeoutStartSec=900
 
 [Install]
 WantedBy=default.target
+
