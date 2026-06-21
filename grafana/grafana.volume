@@ -1,0 +1,5 @@
+[Volume]
+# Other options
+Label="app=grafana"
+VolumeName=grafana-storage
+

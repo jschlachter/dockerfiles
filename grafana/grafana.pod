@@ -1,0 +1,9 @@
+[Unit]
+Description=Grafana Pod
+
+[Pod]
+PodName=grafana
+PublishPort=3000:3000
+
+[Install]
+WantedBy=default.target

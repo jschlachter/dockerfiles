@@ -1,0 +1,23 @@
+[Unit]
+Description=Grafana Container
+
+[Container]
+# Base options
+ContainerName=grafana
+Image=docker.io/grafana/grafana-enterprise
+Pod=grafana.pod
+
+# Storage options
+Volume=grafana.volume:/var/lib/grafana
+
+# Environment options
+Environment=GF_LUGINS_PREINSTALL=grafana-clock-panel
+
+[Service]
+Restart=always
+RestartSec=10sec
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
+
