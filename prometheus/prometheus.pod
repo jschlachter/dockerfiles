@@ -1,0 +1,15 @@
+[Unit]
+Description=Prometheus Pod
+After=network-online.target
+
+[Pod]
+# Base options
+PodName=prometheus
+
+# Network options
+Network=prometheus.network
+PublishPort=9090:9090
+
+[Install]
+WantedBy=default.target
+

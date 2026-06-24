@@ -1,0 +1,4 @@
+[Volume]
+# Other options
+VolumeName=prometheus-storage
+

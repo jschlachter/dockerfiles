@@ -1,0 +1,21 @@
+[Unit]
+Description=Prometheus
+
+[Container]
+# Base options
+ContainerName=prometheus
+Image=docker.io/prom/prometheus:v3
+Pod=prometheus.pod
+
+# Storage options
+Volume=%h/.config/containers/systemd/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro,Z
+Volume=prometheus.volume:/prometheus
+
+[Service]
+Restart=always
+RestartSec=10sec
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
+

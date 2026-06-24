@@ -23,18 +23,21 @@ MACHINE="${PODMAN_MACHINE:-podman-machine-default}"
 
 while getopts ":d:m:" opt; do
   case $opt in
-    d) SERVICE_DIR="$(cd "$OPTARG" && pwd)" ;;
-    m) MACHINE="$OPTARG" ;;
-    *) usage ;;
+  d) SERVICE_DIR="$(cd "$OPTARG" && pwd)" ;;
+  m) MACHINE="$OPTARG" ;;
+  *) usage ;;
   esac
 done
 
 [[ -n "$SERVICE_DIR" ]] || usage
-[[ -d "$SERVICE_DIR" ]] || { echo "❌ Directory not found: $OPTARG" >&2; exit 1; }
+[[ -d "$SERVICE_DIR" ]] || {
+  echo "❌ Directory not found: $OPTARG" >&2
+  exit 1
+}
 
 SERVICE_NAME="$(basename "$SERVICE_DIR")"
 POD_SERVICE="${SERVICE_NAME}-pod.service"
-QUADLET_DEST="~/.config/containers/systemd"
+QUADLET_DEST="~/.config/containers/systemd/${SERVICE_NAME}"
 HEALTH_TIMEOUT=120
 HEALTH_INTERVAL=5
 
@@ -42,10 +45,13 @@ HEALTH_INTERVAL=5
 # Output helpers
 # ---------------------------------------------------------------------------
 
-info()    { echo "ℹ️  $*"; }
+info() { echo "ℹ️  $*"; }
 success() { echo "✅ $*"; }
-warn()    { echo "⚠️  $*"; }
-step()    { echo ""; echo "🔧 $*"; }
+warn() { echo "⚠️  $*"; }
+step() {
+  echo ""
+  echo "🔧 $*"
+}
 
 die() {
   echo "" >&2
@@ -93,7 +99,7 @@ success "Machine is running"
 step "Locating quadlet files in ${SERVICE_DIR}..."
 
 QUADLET_FILES=()
-for ext in container pod volume network; do
+for ext in container pod volume network yml yaml; do
   while IFS= read -r -d '' f; do
     QUADLET_FILES+=("$f")
   done < <(find "$SERVICE_DIR" -maxdepth 1 -name "*.${ext}" -print0 2>/dev/null || true)
@@ -126,7 +132,7 @@ for file in "${QUADLET_FILES[@]}"; do
     success "  Copied $filename"
   else
     echo "❌  Failed to copy $filename" >&2
-    (( COPY_ERRORS++ )) || true
+    ((COPY_ERRORS++)) || true
   fi
 done
 
@@ -147,8 +153,8 @@ success "Systemd daemon reloaded"
 step "Restarting ${POD_SERVICE}..."
 if ! vm_ssh "systemctl --user restart ${POD_SERVICE}" 2>/dev/null; then
   warn "${POD_SERVICE} not found — attempting enable instead..."
-  vm_ssh "systemctl --user enable --now ${POD_SERVICE}" \
-    || die "Failed to start ${POD_SERVICE}. Run: journalctl --user -u ${POD_SERVICE}"
+  vm_ssh "systemctl --user enable --now ${POD_SERVICE}" ||
+    die "Failed to start ${POD_SERVICE}. Run: journalctl --user -u ${POD_SERVICE}"
 fi
 success "${POD_SERVICE} started"
 
@@ -164,22 +170,22 @@ step "Waiting for container to become healthy (timeout: ${HEALTH_TIMEOUT}s)..."
 
 while true; do
   RAW=$(vm_ssh "podman inspect --format '{{.State.Health.Status}}' ${SERVICE_NAME}" 2>/dev/null || true)
-  STATUS="${RAW//[^a-zA-Z]/}"  # strip any stray whitespace/control chars
+  STATUS="${RAW//[^a-zA-Z]/}" # strip any stray whitespace/control chars
 
   case "$STATUS" in
-    healthy)
-      success "Container is healthy! 🎉"
+  healthy)
+    success "Container is healthy! 🎉"
+    break
+    ;;
+  "")
+    # No health check defined — just confirm the container is running
+    RUNNING=$(vm_ssh "podman inspect --format '{{.State.Status}}' ${SERVICE_NAME}" 2>/dev/null || true)
+    if [[ "$RUNNING" == "running" ]]; then
+      success "Container is running (no health check configured)"
+      HEALTH_SKIPPED=true
       break
-      ;;
-    "")
-      # No health check defined — just confirm the container is running
-      RUNNING=$(vm_ssh "podman inspect --format '{{.State.Status}}' ${SERVICE_NAME}" 2>/dev/null || true)
-      if [[ "$RUNNING" == "running" ]]; then
-        success "Container is running (no health check configured)"
-        HEALTH_SKIPPED=true
-        break
-      fi
-      ;;
+    fi
+    ;;
   esac
 
   if [[ $ELAPSED -ge $HEALTH_TIMEOUT ]]; then
@@ -190,7 +196,7 @@ while true; do
 
   echo "   ⏳ Status: ${STATUS:-starting} — ${ELAPSED}s elapsed..."
   sleep $HEALTH_INTERVAL
-  (( ELAPSED += HEALTH_INTERVAL )) || true
+  ((ELAPSED += HEALTH_INTERVAL)) || true
 done
 
 # ---------------------------------------------------------------------------
@@ -205,7 +211,7 @@ if [[ -f "$POD_FILE" ]]; then
     if [[ "$line" =~ ^PublishPort=([0-9]+):([0-9]+) ]]; then
       PORTS+=("  🔌 localhost:${BASH_REMATCH[1]}  →  container:${BASH_REMATCH[2]}")
     fi
-  done < "$POD_FILE"
+  done <"$POD_FILE"
 fi
 
 echo ""
