@@ -1,0 +1,15 @@
+[Unit]
+Description=RustFS Pod
+After=network-online.target
+
+[Pod]
+# Base options
+PodName=rustfs
+
+# Network options
+Network=rustfs.network
+PublishPort=9000:9000
+PublishPort=9001:9001
+
+[Install]
+WantedBy=default.target
