@@ -7,7 +7,7 @@ Requires=authentik-postgresql.service
 # Base options
 ContainerName=authentik-server
 Exec=server
-Image=ghcr.io/goauthentik/server:2026.5
+Image=ghcr.io/goauthentik/server:2026.8.0
 Pod=authentik.pod
 
 # Storage options
@@ -22,6 +22,9 @@ Environment=AUTHENTIK_POSTGRESQL__USER=authentik
 # Secret options
 Secret=authentik-db-pass,type=env,target=AUTHENTIK_POSTGRESQL__PASSWORD
 Secret=authentik-secret-key,type=env,target=AUTHENTIK_SECRET_KEY
+
+# Other options
+ShmSize=512mb
 
 [Service]
 ExecStartPre=mkdir -p %h/authentik/data && mkdir -p \
